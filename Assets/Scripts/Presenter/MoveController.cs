@@ -1,77 +1,51 @@
 using System;
-using Unity.Mathematics;
+using Tanks;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-public class MoveController 
+public class MoveController : IController, IFixedExecute, IDisposable
 {
-  public int moveSpeed;
-  public int moveRotation;
-  public float moveRotationTurret;
-  public Transform TurretParent;
-  private Vector2 _moveDirection;
+  public event Action<IController> EvtNeedDestroy;
+  
+  private TankModel _tankModel;
+  private TankView _tankView;
+  
+  private Transform _turretParent;
   private Rigidbody2D _rb;
-
-  private Vector3 _mosWorldPos;
-
-  private PlayerInput _input;
-  private void Awake()
+  private float _deltaTime = 0;
+  
+  
+  public MoveController(TankModel tankModel, TankView tankView)
   {
-    _input = new PlayerInput();
-    _input.Player.Shoot.performed += context => Shoot();
-    
+    _tankModel = tankModel;
+    _tankView = tankView;
+    _rb = _tankView.Rb;
+    _turretParent = _tankView.TurretParent;
   }
   
-
-  public void OnMove(InputAction.CallbackContext context)
+  public void FixedExecute(float deltaTime)
   {
-    _moveDirection = context.ReadValue<Vector2>();
-  }
-
-  private void FixedUpdate()
-  {
-    _moveDirection = _input.Player.Move.ReadValue<Vector2>();
-    Move(_moveDirection);
+    _deltaTime = deltaTime;
+    Debug.Log($"Move {_tankModel.MoveDirection.Value}");
+    Move(_tankModel.MoveDirection.Value);
     HandleTurretMovement();
   }
-  
-  // public void OnShoot(InputAction.CallbackContext context)
-  // {
-  //   Debug.Log("Shoot");
-  // }
   private void Move(Vector2 dir)
   {
     var dirnormal = dir.normalized;
-    float speed = moveSpeed * Time.deltaTime;
-    Vector3 moveDirection = new Vector3(dir.x, dir.y, 0);
-    Vector2 moveDir = (Vector2) _rb.transform.up * dirnormal.y * speed * Time.deltaTime;
+    Vector2 moveDir = (Vector2) _rb.transform.up * dirnormal.y * _tankModel.SpeedMove.Value * _deltaTime;
     _rb.velocity = moveDir;
     int revers = dir.y < 0 ? 1 : -1 ;
-    _rb.MoveRotation(_rb.transform.rotation * Quaternion.Euler(0, 0, dirnormal.x * moveRotation * Time.deltaTime * revers));
+    _rb.MoveRotation(_rb.transform.rotation * Quaternion.Euler(0, 0, dirnormal.x * _tankModel.SpeedMove.Value * _deltaTime *  revers));
   }
 
   private void HandleTurretMovement()
   {
-    Vector3 mosPos = Mouse.current.position.ReadValue();
-    mosPos.z = Camera.main.nearClipPlane;
-    _mosWorldPos = Camera.main.ScreenToWorldPoint(mosPos);
-    var turretDirection = (Vector3) _mosWorldPos - _rb.transform.position;
+    var turretDirection = (Vector3) _tankModel.MousPosition.Value - _rb.transform.position;
     var deseredAngle = Mathf.Atan2(turretDirection.y, turretDirection.x) * Mathf.Rad2Deg;
-    var rotationStep = moveRotationTurret * Time.deltaTime;
-    TurretParent.rotation = Quaternion.RotateTowards(TurretParent.rotation, Quaternion.Euler( 0,0,deseredAngle), rotationStep);
-  }
-  private void Shoot()
-  {
-    Debug.Log("Shoot");
-  }
-  
-  private void OnEnable()
-  {
-     _input.Enable();
+    _turretParent.rotation = Quaternion.RotateTowards(_turretParent.rotation, Quaternion.Euler( 0,0,deseredAngle), _tankModel.SpeedRotateGun.Value * _deltaTime);
   }
 
-  private void OnDisable()
+  public void Dispose()
   {
-     _input.Disable();
   }
 }

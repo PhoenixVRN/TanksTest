@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Tanks
@@ -46,10 +44,48 @@ namespace Tanks
                 }
             }
         }
+        internal SubscriptionField<float> SpeedMove { get; }
+        internal SubscriptionField<float> SpeedRotateGun { get; }
+        internal SubscriptionField<float> ReloadedOfFire { get; }
+        internal SubscriptionField<float> Damage { get; }
+        internal SubscriptionField<bool> IsDead { get; }
+        internal SubscriptionField<Vector2> MoveDirection { get; }
+        internal SubscriptionField<Vector2> MousPosition { get; }
         
-        private float _speedMove;
-        private float _speedRotationGun;
+        internal SubscriptionField<bool> Shoot { get; }
         
+        
+
+
+        public TankModel(int hp,float speed, float speedRotateGun, float reloadedOfFire, float damage)
+        {
+            _hp = hp;
+
+            SpeedMove = new SubscriptionField<float>();
+            SpeedMove.Value = speed;
+            
+            SpeedRotateGun = new SubscriptionField<float>();
+            SpeedRotateGun.Value = speedRotateGun;
+
+            ReloadedOfFire = new SubscriptionField<float>();
+            ReloadedOfFire.Value = reloadedOfFire;
+
+            Damage = new SubscriptionField<float>();
+            Damage.Value = damage;
+            
+            IsDead = new SubscriptionField<bool>();
+
+            MoveDirection = new SubscriptionField<Vector2>();
+
+            MousPosition = new SubscriptionField<Vector2>();
+
+            Shoot = new SubscriptionField<bool>();
+        }
+
+        public void ShootGun()
+        {
+          Debug.Log("Shoot");  
+        }
         public void InitDead()
         {
             evtKill();
@@ -57,16 +93,6 @@ namespace Tanks
             evtLives = delegate { };
             evtMakeKill = delegate { };
             ClearVariablesSubscribe();
-        }
-        internal SubscriptionField<bool> IsDead { get; }
-        internal SubscriptionField<float> AddMaxSpeed { get; }
-        internal SubscriptionField<float> Speed { get; }
-
-        public TankModel()
-        {
-            IsDead = new SubscriptionField<bool>();
-            AddMaxSpeed = new SubscriptionField<float>();
-            Speed = new SubscriptionField<float>();
         }
         public void ClearVariablesSubscribe()
         {

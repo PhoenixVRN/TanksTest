@@ -1,39 +1,42 @@
 ﻿using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace Tanks
 {
-    public class Bootstrap: MonoBehaviour
+    public class Bootstrap : MonoBehaviour
     {
         [SerializeField] private GameObject _plane;
         [SerializeField] private GameObject _player;
+
+
         private void Awake()
         {
-             LoadResources.Init();
-             ListControllers.Init();
-             ListControllers.Add(new GlobalGameController(_plane, _player));
+            LoadResources.Init();
+            ListControllers.Init();
+            new PlayerBuilder();
+            ListControllers.Add(new GlobalGameController(_plane, _player));
+            // ListControllers.Add(new MoveController(_player));
         }
 
         private void Start()
         {
-             ListControllers.Initialization();
+            ListControllers.Initialization();
         }
 
         private void Update()
         {
             // Profiler.BeginSample("StartExecute");
-             ListControllers.Execute(Time.deltaTime);
+            ListControllers.Execute(Time.deltaTime);
             // Profiler.EndSample();
         }
 
         private void LateUpdate()
         {
-             ListControllers.LateExecute(Time.deltaTime);            
-         }
+            ListControllers.LateExecute(Time.deltaTime);
+        }
 
         private void FixedUpdate()
         {
-             ListControllers.FixedExecute(Time.deltaTime);
+            ListControllers.FixedExecute(Time.deltaTime);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Tanks
     public GlobalGameController(GameObject plane, GameObject player)
     {
         _plane = GameObject.Instantiate(plane, new Vector3(0, 0, 0), Quaternion.identity);
-        _player = GameObject.Instantiate(player, new Vector3(0, 0, 0), Quaternion.identity);
+        // _player = GameObject.Instantiate(player, new Vector3(0, 0, 0), Quaternion.identity);
         // _gameModel = new GameModel();
         // Reference.AddGameModel(_gameModel);
         // LoadCfg(_nameGameCfg, (obj) =>
@@ -38,7 +38,7 @@ namespace Tanks
     public event Action<IController> EvtNeedDestroy;
     public void Execute(float deltaTime)
     {
-        Debug.Log($"Execute");
+        // Debug.Log($"Execute");
     }
     }
 }
